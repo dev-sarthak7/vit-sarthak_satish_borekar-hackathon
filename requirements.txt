@@ -1,1 +1,13 @@
+pandas
+pydantic
+requests
+python-dotenv
+transformers
+torch
+fastapi
+uvicorn
+yfinance
+streamlit
+plotly
+pytest
 httpx
