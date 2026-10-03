@@ -12,7 +12,7 @@ TIME_COLS = ["date", "timestamp", "created_at"]
 TICKER_COLS = ["stock name", "ticker", "symbol", "stock"]
 
 # Datasets sometimes use a different share class / symbol than our universe
-ALIASES = {"GOOG": "GOOGL"}
+ALIASES = {"GOOGL": "GOOG"}
 
 
 def _find_col(columns, candidates) -> Optional[str]:
@@ -46,14 +46,16 @@ def load_tweets_csv(path, limit: Optional[int] = None) -> list[Document]:
     docs = []
     for _, row in df.iterrows():
         text = str(row[text_col])
-        ticker = None
         if ticker_col is not None:
+            # Trust the dataset's own label; never re-tag by company name
             raw = str(row[ticker_col]).strip().upper()
             ticker = ALIASES.get(raw, raw)
-        if ticker not in UNIVERSE:
+            if ticker not in UNIVERSE:
+                continue                  # keep only tweets about our index
+        else:
             ticker = tag_ticker(text)
-        if ticker is None:
-            continue                      # keep only tweets about our index
+            if ticker is None:
+                continue
         try:
             docs.append(Document(
                 source="kaggle_tweets", source_type="social",

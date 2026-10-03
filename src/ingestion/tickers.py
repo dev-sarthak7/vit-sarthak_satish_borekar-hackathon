@@ -1,23 +1,25 @@
 import re
 from typing import Optional
 
-# Mock index universe: ticker -> names the text may use for the company
+# Mock index universe: ticker -> names the text may use for the company.
+# Chosen because the tweets dataset has solid labeled coverage for each.
 UNIVERSE = {
     "AAPL": ["Apple"],
     "MSFT": ["Microsoft"],
     "AMZN": ["Amazon"],
-    "GOOGL": ["Google", "Alphabet"],
+    "GOOG": ["Google", "Alphabet"],
     "META": ["Meta Platforms", "Facebook"],
-    "NVDA": ["Nvidia"],
     "TSLA": ["Tesla"],
-    "JPM": ["JPMorgan", "JP Morgan"],
-    "BAC": ["Bank of America"],
-    "GS": ["Goldman Sachs"],
-    "XOM": ["Exxon", "ExxonMobil"],
-    "JNJ": ["Johnson & Johnson"],
+    "AMD": ["AMD", "Advanced Micro Devices"],
+    "NFLX": ["Netflix"],
+    "PYPL": ["PayPal"],
+    "INTC": ["Intel"],
+    "CRM": ["Salesforce"],
+    "DIS": ["Disney"],
+    "BA": ["Boeing"],
     "PG": ["Procter & Gamble"],
-    "WMT": ["Walmart"],
     "KO": ["Coca-Cola", "Coca Cola"],
+    "COST": ["Costco"],
 }
 
 
