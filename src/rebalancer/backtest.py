@@ -36,6 +36,18 @@ def performance(daily: pd.Series) -> dict:
     }
 
 
+def excess_stats(daily: pd.DataFrame) -> dict:
+    """Is the sentiment index's edge over the benchmark distinguishable from noise?"""
+    diff = daily["sentiment_index"] - daily["equal_weight"]
+    std = diff.std()
+    t = diff.mean() / (std / np.sqrt(len(diff))) if std > 1e-10 else float("nan")
+    return {
+        "excess_return_%/yr": 100 * diff.mean() * TRADING_DAYS,
+        "tracking_error_%/yr": 100 * std * np.sqrt(TRADING_DAYS),
+        "t_stat": t,
+    }
+
+
 def turnover(weights: pd.DataFrame) -> float:
     """Average share of the portfolio traded per day, in %."""
     return 100 * weights.diff().abs().sum(axis=1).mean() / 2
@@ -50,7 +62,7 @@ if __name__ == "__main__":
     for tilt in (0.0, 0.25, 0.5, 1.0):
         daily, weights = run_backtest(signals, prices, tilt)
         rows.append({"tilt": tilt, **performance(daily["sentiment_index"]),
-                     "turnover_%/day": turnover(weights)})
+                     **excess_stats(daily), "turnover_%/day": turnover(weights)})
         bench = performance(daily["equal_weight"])
     print("Sentiment index by tilt strength:")
     print(pd.DataFrame(rows).round(2).to_string(index=False))
