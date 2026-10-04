@@ -1,0 +1,61 @@
+position_id,asset_class,name,ticker,sector,rating,notional_musd,market_value_musd,maturity_years,coupon_pct,mod_duration,convexity,pd_pct,lgd_pct,direction
+L001,loan,Apple term loan,AAPL,Technology,BB,99.0,99.0,4.0,7.85,,,1.0,45.0,
+L002,loan,Microsoft term loan,MSFT,Technology,BBB,37.0,37.0,7.0,6.42,,,0.2,45.0,
+L003,loan,Amazon term loan,AMZN,Consumer,B,157.0,157.0,6.0,9.96,,,4.0,45.0,
+L004,loan,Google term loan,GOOG,Technology,A,101.1,101.1,6.0,5.86,,,0.06,45.0,
+L005,loan,Meta Platforms term loan,META,Technology,BBB,186.8,186.8,6.0,6.36,,,0.2,45.0,
+L006,loan,Tesla term loan,TSLA,Automotive,BB,99.8,99.8,5.0,7.9,,,1.0,45.0,
+L007,loan,AMD term loan,AMD,Technology,A,119.8,119.8,7.0,5.92,,,0.06,45.0,
+L008,loan,Netflix term loan,NFLX,Media,BB,133.7,133.7,1.0,7.7,,,1.0,45.0,
+L009,loan,PayPal term loan,PYPL,Financials,BB,83.8,83.8,1.0,7.7,,,1.0,45.0,
+L010,loan,Intel term loan,INTC,Technology,BB,160.1,160.1,7.0,8.02,,,1.0,45.0,
+L011,loan,Salesforce term loan,CRM,Technology,A,104.0,104.0,4.0,5.75,,,0.06,45.0,
+L012,loan,Disney term loan,DIS,Media,A,142.9,142.9,1.0,5.6,,,0.06,45.0,
+L013,loan,Boeing term loan,BA,Industrials,BBB,194.2,194.2,3.0,6.2,,,0.2,45.0,
+L014,loan,Procter & Gamble term loan,PG,Staples,BBB,104.5,104.5,3.0,6.2,,,0.2,45.0,
+L015,loan,Coca-Cola term loan,KO,Staples,A,43.4,43.4,5.0,5.8,,,0.06,45.0,
+L016,loan,Costco term loan,COST,Retail,A,140.6,140.6,4.0,5.75,,,0.06,45.0,
+L017,loan,Northern Utilities Ltd term loan,,Utilities,BBB,169.9,169.9,5.0,6.3,,,0.2,45.0,
+L018,loan,Atlas Energy Corp term loan,,Energy,BBB,169.8,169.8,5.0,6.3,,,0.2,45.0,
+L019,loan,Meridian Realty Trust term loan,,Real Estate,BB,89.7,89.7,7.0,8.02,,,1.0,45.0,
+L020,loan,Harbor Shipping Co term loan,,Industrials,BBB,45.2,45.2,3.0,6.2,,,0.2,45.0,
+L021,loan,Summit Healthcare Inc term loan,,Healthcare,A,21.3,21.3,6.0,5.86,,,0.06,45.0,
+L022,loan,Crestline Telecom term loan,,Telecom,BBB,146.9,146.9,6.0,6.36,,,0.2,45.0,
+L023,loan,Pioneer Steel Works term loan,,Materials,BB,102.6,102.6,4.0,7.85,,,1.0,45.0,
+L024,loan,Coastal Foods Group term loan,,Staples,A,40.6,40.6,4.0,5.75,,,0.06,45.0,
+L025,loan,Vertex Logistics term loan,,Industrials,BBB,104.8,104.8,6.0,6.36,,,0.2,45.0,
+B001,corp_bond,Apple 3y bond,AAPL,Technology,BB,24.1,23.87,3.0,6.43,2.642,9.69,,,
+B002,corp_bond,PayPal 3y bond,PYPL,Financials,A,37.9,38.19,3.0,4.98,2.732,10.27,,,
+B003,corp_bond,Boeing 10y bond,BA,Industrials,BBB,50.7,50.24,10.0,5.48,7.526,72.12,,,
+B004,corp_bond,Microsoft 7y bond,MSFT,Technology,A,14.5,14.37,7.0,4.77,5.822,42.32,,,
+B005,corp_bond,Salesforce 7y bond,CRM,Technology,BBB,35.1,34.72,7.0,5.23,5.722,41.2,,,
+B006,corp_bond,Netflix 5y bond,NFLX,Media,A,32.3,32.55,5.0,4.98,4.341,24.05,,,
+B007,corp_bond,AMD 3y bond,AMD,Technology,BBB,28.1,28.08,3.0,5.17,2.714,10.15,,,
+B008,corp_bond,Google 5y bond,GOOG,Technology,A,58.1,56.76,5.0,4.27,4.391,24.43,,,
+B009,corp_bond,Disney 5y bond,DIS,Media,BB,58.5,58.14,5.0,6.75,4.12,22.12,,,
+B010,corp_bond,Tesla 7y bond,TSLA,Automotive,BBB,32.5,33.06,7.0,5.72,5.664,40.62,,,
+G001,gov_bond,US Treasury 2y,,Government,AAA,74.1,74.02,2.0,3.69,1.893,5.44,,,
+G002,gov_bond,US Treasury 5y,,Government,AAA,163.9,163.17,5.0,3.8,4.472,25.18,,,
+G003,gov_bond,US Treasury 10y,,Government,AAA,126.5,121.22,10.0,3.68,8.165,81.42,,,
+G004,gov_bond,US Treasury 10y,,Government,AAA,94.2,94.73,10.0,4.27,8.014,79.32,,,
+G005,gov_bond,US Treasury 30y,,Government,AAA,239.6,222.82,30.0,4.07,16.63,396.13,,,
+E001,equity,Procter & Gamble shares,PG,Staples,,12.9,12.9,,,,,,,
+E002,equity,Meta Platforms shares,META,Technology,,10.7,10.7,,,,,,,
+E003,equity,Tesla shares,TSLA,Automotive,,37.3,37.3,,,,,,,
+E004,equity,Netflix shares,NFLX,Media,,14.4,14.4,,,,,,,
+E005,equity,Coca-Cola shares,KO,Staples,,55.9,55.9,,,,,,,
+E006,equity,Salesforce shares,CRM,Technology,,37.0,37.0,,,,,,,
+E007,equity,PayPal shares,PYPL,Financials,,24.1,24.1,,,,,,,
+E008,equity,Costco shares,COST,Retail,,37.5,37.5,,,,,,,
+E009,equity,Google shares,GOOG,Technology,,6.3,6.3,,,,,,,
+E010,equity,Microsoft shares,MSFT,Technology,,57.7,57.7,,,,,,,
+S001,ir_swap,Pay-fixed IRS 5y,,Rates,,270.0,0.34,5.0,,4.464,,,,pay_fixed
+S002,ir_swap,Pay-fixed IRS 5y,,Rates,,120.0,0.96,5.0,,4.464,,,,pay_fixed
+S003,ir_swap,Pay-fixed IRS 3y,,Rates,,370.0,0.61,3.0,,2.786,,,,pay_fixed
+S004,ir_swap,Pay-fixed IRS 5y,,Rates,,160.0,-1.36,5.0,,4.464,,,,pay_fixed
+S005,ir_swap,Pay-fixed IRS 7y,,Rates,,430.0,-1.4,7.0,,5.998,,,,pay_fixed
+S006,ir_swap,Pay-fixed IRS 5y,,Rates,,320.0,-0.78,5.0,,4.464,,,,pay_fixed
+F001,fx_forward,EURUSD forward,,FX,,55.4,0.24,,,,,,,short_usd
+F002,fx_forward,GBPUSD forward,,FX,,274.0,-0.17,,,,,,,long_usd
+F003,fx_forward,USDJPY forward,,FX,,77.1,-0.15,,,,,,,short_usd
+F004,fx_forward,USDCHF forward,,FX,,120.3,0.14,,,,,,,short_usd
