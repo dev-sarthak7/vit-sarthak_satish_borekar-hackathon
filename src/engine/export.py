@@ -1,5 +1,6 @@
 import argparse
 import json
+import time
 from pathlib import Path
 
 from ..ingestion.news import load_news, load_news_csv
@@ -8,11 +9,13 @@ from .pipeline import Signal, process_documents
 
 SIGNALS_PATH = Path("data/signals.json")
 TWEETS_SAMPLE = Path("data/sample_tweets.csv")
+CHUNK = 250     # documents scored per progress update
 
 
 def write_signals(signals: list[Signal], path: Path = SIGNALS_PATH) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps([s.model_dump(mode="json") for s in signals], indent=2))
+    lines = [json.dumps(s.model_dump(mode="json"), separators=(",", ":")) for s in signals]
+    path.write_text("[\n" + ",\n".join(lines) + "\n]\n")
 
 
 def read_signals(path: Path = SIGNALS_PATH) -> list[Signal]:
@@ -26,7 +29,13 @@ def run_engine(live: bool = False, path: Path = SIGNALS_PATH,
     if tweets_path.exists():
         docs += load_tweets_csv(tweets_path)
     docs.sort(key=lambda d: d.timestamp)
-    signals = process_documents(docs)
+
+    signals: list[Signal] = []
+    start = time.time()
+    for i in range(0, len(docs), CHUNK):
+        signals.extend(process_documents(docs[i:i + CHUNK]))
+        done = min(i + CHUNK, len(docs))
+        print(f"[engine] {done}/{len(docs)} documents ({time.time() - start:.0f}s)", flush=True)
     write_signals(signals, path)
     return signals
 

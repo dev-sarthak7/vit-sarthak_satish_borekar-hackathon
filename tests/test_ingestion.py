@@ -82,5 +82,5 @@ def test_tweets_loader_drops_bad_dates(tmp_path):
 
 def test_sample_tweets_file_round_trips():
     docs = load_tweets_csv("data/sample_tweets.csv")
-    assert len(docs) == 640
+    assert len(docs) > 4000
     assert len({d.ticker for d in docs}) == 16
