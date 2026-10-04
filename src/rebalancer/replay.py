@@ -4,7 +4,7 @@ import pandas as pd
 
 from ..engine.pipeline import Signal
 from .index import INDEX_TICKERS
-from .weights import adjust_weights
+from .weights import TILT, adjust_weights
 
 LOOKBACK_DAYS = 30      # ignore signals older than this
 HALF_LIFE_DAYS = 7.0    # a signal's influence halves every 7 days
@@ -38,14 +38,14 @@ def decayed_sentiment(frame: pd.DataFrame, as_of: pd.Timestamp,
     return out
 
 
-def weight_history(signals: Iterable[Signal], dates) -> pd.DataFrame:
+def weight_history(signals: Iterable[Signal], dates, tilt: float = TILT) -> pd.DataFrame:
     """Daily index weights (rows = dates, columns = tickers) from replayed signals."""
     frame = _signal_frame(signals)
     rows = {}
     for d in dates:
         day = pd.Timestamp(d)
         as_of = day.tz_localize("UTC") + pd.Timedelta(days=1)   # end of that day
-        rows[day] = adjust_weights(decayed_sentiment(frame, as_of))
+        rows[day] = adjust_weights(decayed_sentiment(frame, as_of), tilt=tilt)
     df = pd.DataFrame.from_dict(rows, orient="index")[INDEX_TICKERS]
     df.index.name = "date"
     return df
