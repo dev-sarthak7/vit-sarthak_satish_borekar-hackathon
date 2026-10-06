@@ -14,6 +14,7 @@ LABEL_DESCRIPTIONS = {
     "Regulatory/Legal": "a regulatory or legal matter such as an investigation, lawsuit or fine",
     "Earnings": "company earnings, revenue or financial guidance",
     "Product Launch": "a new product launch or announcement",
+    "Market Move": "a stock price move or market sell-off, without a specific underlying event",
     "Other": "routine company news with no major financial event",
 }
 

@@ -7,6 +7,7 @@ SEVERITY = {
     "Regulatory/Legal": 0.60,
     "Earnings": 0.55,
     "Product Launch": 0.35,
+    "Market Move": 0.40,
     "Other": 0.15,
 }
 

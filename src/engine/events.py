@@ -37,6 +37,15 @@ EVENT_KEYWORDS = {
     ],
 }
 
+# Price moves with no stated cause. Added after the first trigger test showed
+# tweets about share-price moves being mislabeled as credit events.
+EVENT_KEYWORDS["Market Move"] = [
+    r"shares? (?:fall|fell|drop\w*|tumbl\w*|slid\w*|slump\w*|plunge\w*|sink\w*|jump\w*|surg\w*|soar\w*|rall\w+|rise|rose|down|up)",
+    r"stock (?:tumbl\w*|fall\w*|drop\w*|jump\w*|surg\w*|plunge\w*|sink\w*|extends?)",
+    r"sell-?off", r"tumbl\w*", r"plunge\w*", r"collaps\w*", r"premarket",
+    r"futures?", r"futs", r"biggest (?:drop|decline|gain)", r"trading volume", r"peak",
+]
+
 _COMPILED = {
     label: [re.compile(rf"\b(?:{p})\b", re.IGNORECASE) for p in patterns]
     for label, patterns in EVENT_KEYWORDS.items()
