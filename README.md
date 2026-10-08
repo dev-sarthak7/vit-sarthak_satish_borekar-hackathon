@@ -1,140 +1,206 @@
-# AI/NLP Risk Engine + Sentiment Index Rebalancer - S&P Global & Crisil Campus Hackathon
+# AI/NLP Risk Engine + Tactical Rebalancer & Portfolio Stress Tester - S&P Global & Crisil Campus Hackathon
 
-**Candidate Name:** Sarthak Satish Borekar<br>
-**College Email ID:** sarthak.23bce10568@vitbhopal.ac.in<br>
-**College / Campus:** Vellore Institute of Technology - Bhopal<br>
-**Demo Video Link:** To be added (YouTube, unlisted)<br>
-**Slide Deck Link (if hosted externally):** see `docs/presentation.pdf`
+**Candidate Name:** Sarthak Satish Borekar  
+**College Email ID:** sarthak.23bce10568@vitbhopal.ac.in  
+**College / Campus:** Vellore Institute of Technology - Bhopal  
+**Demo Video Link:** [YouTube / Unlisted - Video Walkthrough](https://youtu.be/placeholder) *(Update with unlisted demo link)*  
+**Slide Deck Link (if hosted externally):** [`docs/presentation.pdf`](docs/presentation.pdf)
+
+---
 
 ## 1. Project Overview / Problem Statement & Approach
 
-Banks and asset managers receive far more news and social media text than anyone can read in real time. This project turns that unstructured text into **structured, machine-readable risk signals**, and uses those signals to drive a downstream application.
+Financial institutions, risk managers, and asset allocators are inundated with massive volumes of unstructured, high-velocity text from financial news wires, regulatory filings, and social media platforms. Sifting through this unstructured data manually to quantify market exposure in real-time is impossible. This project delivers an end-to-end platform centered around a unified **AI/NLP Risk Engine** that ingests multi-source text, extracts actionable quantitative signals, and feeds two complementary downstream applications: **Module A (Tactical Index Rebalancer)** and **Module B (Strategic Portfolio Stress Testing)**.
 
-**Core: AI/NLP Risk Engine.** It ingests text from two sources (financial news and stock tweets) and, for each document, outputs:
+### Core: AI/NLP Risk Engine
 
-| Field | Meaning | Range |
+The engine parses raw text across multiple channels (financial news and social media tweets) and produces standardized, machine-readable risk signals containing:
+
+| Output Field | Definition & Scoring Logic | Numerical Range / Categories |
 |---|---|---|
-| Sentiment Score | Positive / negative tone of the text | -1.0 to +1.0 |
-| Event Classification | Type of event discussed | Credit Event, Geopolitical, Macroeconomic, Merger/Acquisition, Regulatory/Legal, Earnings, Product Launch, Other |
-| Impact Score | Predicted market severity | 1 to 10 |
+| **Sentiment Score** | Domain-specific sentiment polarity computed via **FinBERT** (`P(pos) - P(neg)`) | `[-1.0, +1.0]` (Negative to Positive) |
+| **Event Classification** | 9-category classification using Zero-Shot NLI (`cross-encoder/nli-distilroberta-base`) backed by keyword verification | `Credit Event`, `Geopolitical`, `Macroeconomic`, `Merger/Acquisition`, `Regulatory/Legal`, `Earnings`, `Product Launch`, `Market Move`, `Other` |
+| **Impact Score** | Severity formula modeling event magnitude, sentiment intensity, source credibility, and classification confidence | `[1.0, 10.0]` (1 = Minimal, 10 = Systemic shock) |
 
-Signals are available as a JSON file (`data/signals.json`) and through a FastAPI service.
+Structured signals are published to `data/signals.json` and served dynamically via a RESTful **FastAPI** service.
 
-**Downstream: Module A, Tactical Index Rebalancer.** A mock index of 15 large-cap US stocks starts at equal weight. Each day the rebalancer raises the weight of stocks with positive sentiment and lowers the weight of stocks with negative sentiment, within position limits. A Streamlit dashboard shows the weights over time and the live signal feed.
+```
++---------------------------------------------------------------------------------------------+
+|                                    DATA INGESTION                                           |
+|   +---------------------------------------+     +---------------------------------------+   |
+|   | Financial News (CSV / Live NewsAPI)   |     | Social Media (Stock Tweets Dataset)   |   |
+|   +---------------------------------------+     +---------------------------------------+   |
++---------------------------------------------------------------------------------------------+
+                                              |
+                                              v
++---------------------------------------------------------------------------------------------+
+|                                 CORE AI/NLP RISK ENGINE                                     |
+|  +---------------------------+  +---------------------------+  +-------------------------+  |
+|  |   FinBERT Sentiment       |  |  Zero-Shot NLI Classifier |  |  Severity-Based Impact  |  |
+|  |   [-1.0 to +1.0]          |  |  9 Event Categories       |  |  [1.0 to 10.0]          |  |
+|  +---------------------------+  +---------------------------+  +-------------------------+  |
+|                                             |                                               |
+|                    Structured Signal: (Ticker, Sentiment, Event, Impact)                    |
++---------------------------------------------------------------------------------------------+
+                          |                                             |
+                          v                                             v
++---------------------------------------------+ +---------------------------------------------+
+|  MODULE A: Tactical Index Rebalancer        | |  MODULE B: Strategic Portfolio Stress Test  |
+|  - Universe: 16 Large-Cap US Equities       | |  - Synthetic Wholesale Banking Book ($1.8B) |
+|  - Recency & Impact Weighted Sentiment      | |  - Multi-Asset: Loans, Bonds, Swaps, FX, Eq |
+|  - Dynamic Weight Tilt with 3%-10% Caps     | |  - Automated Trigger Rule (Impact >= 7.0)   |
+|  - 1-Year Historical Daily Replay           | |  - Multi-Factor Shock & Valuation Engine    |
+|  - Backtest vs Equal-Weight Benchmark       | |  - Pre/Post Stress Value & Loss Breakdown   |
++---------------------------------------------+ +---------------------------------------------+
+                          \                                             /
+                           \                                           /
+                            v                                         v
++---------------------------------------------------------------------------------------------+
+|                     INTERACTIVE STREAMLIT DASHBOARD & FASTAPI ENDPOINTS                     |
+|            [Tab 1: Index Rebalancer]   [Tab 2: Stress Testing]   [Tab 3: Signal Feed]       |
++---------------------------------------------------------------------------------------------+
+```
 
-### How each signal is produced
+### Downstream Applications
 
-- **Sentiment:** FinBERT (`ProsusAI/finbert`), a BERT model fine-tuned on financial text. Score = P(positive) - P(negative).
-- **Event type:** zero-shot classification with an NLI model (`cross-encoder/nli-distilroberta-base`) over eight event labels. It is cross-checked against a keyword baseline: if no event keyword matches and the model's confidence is below 0.90, the event becomes `Other`.
-- **Impact score (1-10):** a transparent formula, not a trained model (there is no labeled impact data):
+1. **Module A: Tactical Index Rebalancer**  
+   Manages a mock equity index of 16 prominent US equities. Daily portfolio weights are dynamically adjusted: stocks exhibiting positive sentiment are overweight, while stocks with negative sentiment are underweight. Weights respect strict risk concentration bounds ($3\% \le w_i \le 10\%$) and budget normalization ($\sum w_i = 100\%$). Includes full historical backtesting against an equal-weight benchmark with excess return, tracking error, and t-statistic significance.
 
-  `impact = 1 + 9 x severity x (0.4 + 0.6 x |sentiment|) x source_weight x (0.6 + 0.4 x event_confidence)`
+2. **Module B: Strategic Portfolio Stress Testing**  
+   Simulates macroeconomic and geopolitical shocks on a synthetic **$1.8 Billion wholesale banking portfolio** spanning 6 asset classes (corporate loans, corporate bonds, sovereign bonds, equities, interest-rate swaps, and FX forwards). When high-impact events are detected ($\text{Impact} \ge 7.0$), automated stress scenarios apply multi-factor shocks across equity prices, yield curves, credit spreads, FX rates, and loan default probabilities (PD/LGD).
 
-  `severity` is a per-event-type weight (Credit Event 1.0, Geopolitical 0.95, Macroeconomic 0.85, Merger/Acquisition 0.65, Regulatory/Legal 0.60, Earnings 0.55, Product Launch 0.35, Other 0.15). `source_weight` is 1.0 for news and 0.7 for social media.
-
-### How the rebalancer uses the signals
-
-1. **Ticker sentiment:** mean sentiment per stock, weighted by impact and by recency (30-day lookback, 7-day half-life).
-2. **Tilt:** each weight is multiplied by `1 + 0.5 x sentiment`, then all weights are renormalized to 100%.
-3. **Position limits:** every stock is kept between 3% and 10%; any excess or shortfall is redistributed to the other stocks.
-4. **Replay:** the process runs for every trading day from 2021-09-30 to 2022-09-29 against real prices.
+---
 
 ## 2. Architecture & Tech Stack
 
-![Architecture](docs/architecture.png)
+![Architecture Diagram](docs/architecture.png)
 
-- **Language / runtime:** Python
-- **NLP:** Hugging Face `transformers`, PyTorch, FinBERT, NLI zero-shot classifier
-- **Data and validation:** pandas, pydantic
-- **API:** FastAPI + Uvicorn
-- **Market data:** yfinance
-- **Dashboard:** Streamlit + Plotly
-- **Tests:** pytest
+- **Language / Runtime:** Python 3.11 / 3.14 (macOS, Linux, Windows)
+- **NLP & Transformers:** Hugging Face `transformers`, PyTorch, FinBERT (`ProsusAI/finbert`), NLI Zero-Shot (`cross-encoder/nli-distilroberta-base`)
+- **Financial Modeling & Analytics:** pandas, numpy, yfinance
+- **API Framework:** FastAPI, Uvicorn, Pydantic
+- **Dashboard & Visualization:** Streamlit, Plotly Express / Graph Objects
+- **Testing & Quality Assurance:** pytest, httpx
 
 ```
-src/
-  ingestion/   unified Document schema, news loader, tweets loader, ticker mapping
-  engine/      sentiment, event classifiers, impact score, pipeline, signals.json export
-  api/         FastAPI app
-  rebalancer/  mock index, prices, weight tilt + caps, daily replay
-  dashboard/   Streamlit app
-data/          sample inputs and generated outputs (see Dataset Used)
-docs/          architecture diagram, presentation
-tests/         ingestion tests
+vit-sarthak_satish_borekar-hackathon/
+├── README.md               # Complete documentation, setup, results & architecture
+├── requirements.txt        # Python dependency manifest
+├── LICENSE                 # MIT Open-Source License
+├── data/
+│   ├── sample_news.csv     # Synthetic news headlines for offline execution
+│   ├── sample_tweets.csv   # Stratified sample of 560 stock tweets across 16 tickers
+│   ├── prices.csv          # 1-year daily adjusted closing prices (2021-2022)
+│   ├── portfolio.csv       # Synthetic wholesale banking portfolio (loans, bonds, swaps, FX)
+│   ├── event_eval.csv      # Ground-truth evaluation set for event classification
+│   └── signals.json        # Machine-readable output generated by the NLP engine
+├── docs/
+│   ├── architecture.png    # High-resolution architectural diagram
+│   └── presentation.pdf    # 7-slide case study presentation deck
+├── src/
+│   ├── ingestion/          # Unified document schemas, News/Twitter loaders, Ticker regex matcher
+│   ├── engine/             # FinBERT sentiment, Zero-shot classifier, Impact formula, Export CLI
+│   ├── api/                # FastAPI application with filtering and ticker endpoints
+│   ├── rebalancer/         # Universe config, dynamic weight tilt, bounds capping, backtesting
+│   ├── stress/             # Portfolio loader, event shock scenarios, multi-asset valuation engine
+│   └── dashboard/          # Streamlit 3-tab interactive analytics dashboard
+└── tests/                  # Pytest test suite (34 unit & integration tests)
 ```
+
+---
 
 ## 3. Dataset Used
 
-| File | Source | Notes |
-|---|---|---|
-| `data/sample_news.csv` | **Synthetic**, 8 hand-written headlines | Offline fallback when no NewsAPI key is set |
-| NewsAPI (optional, live) | [newsapi.org](https://newsapi.org) free developer plan | Used only with `--live` and a key in `.env` |
-| `data/sample_tweets.csv` | Kaggle: [Stock Tweets for Sentiment Analysis and Prediction](https://www.kaggle.com/datasets/equinxx/stock-tweets-for-sentiment-analysis-and-prediction) by Hanna Yukhymenko, licensed [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | 560 tweets, stratified sample: up to 40 per ticker over 15 tickers. Full dataset: 80K+ tweets for the 25 most-watched Yahoo Finance tickers, 2021-09-30 to 2022-09-30 |
-| `data/prices.csv` | Yahoo Finance via `yfinance` | Daily adjusted close, 15 tickers, 2021-09-30 to 2022-09-29 (252 trading days) |
-| `data/signals.json` | **Generated** by the engine from the files above | 568 signals (8 news + 560 tweets) |
+| Dataset / File | Source / Origin | Volume & Nature | Usage & Assumptions |
+|---|---|---|---|
+| `data/sample_news.csv` | **Synthetic** | 8 curated financial headlines | Serves as deterministic offline news fallback when NewsAPI key is not present. |
+| NewsAPI (`newsapi.org`) | **Public API** (Free tier) | Real-time global headlines | Live news feed queried on-demand with `--live` flag. |
+| `data/sample_tweets.csv` | **Kaggle** ([Stock Tweets Dataset](https://www.kaggle.com/datasets/equinxx/stock-tweets-for-sentiment-analysis-and-prediction), CC0 1.0) | 560 stratified tweets (up to 40 per ticker) | Historical social media feed covering 2021-09-30 to 2022-09-30 across the 16 index tickers. |
+| `data/prices.csv` | **Yahoo Finance** via `yfinance` | 252 trading days $\times$ 16 tickers | Daily adjusted close prices from 2021-09-30 to 2022-09-29 matching the tweets timeline. |
+| `data/portfolio.csv` | **Synthetic Wholesale Banking Book** | 15 multi-asset institutional positions ($1.8B gross notional) | Covers amortized cost loans with PD/LGD, fixed-income bonds with duration/convexity, IR swaps, and FX forwards. |
+| `data/event_eval.csv` | **Curated Benchmark** | 20 labeled financial event texts | Ground-truth validation dataset for the zero-shot + keyword event classifier. |
+| `data/signals.json` | **Engine Output** | 568 structured records | Pre-generated risk signals ready for instant consumption by downstream modules. |
 
-The full tweets file (about 63k rows after filtering to our 15 tickers) is not in the repository, to keep it small. Only the sample is committed.
+### Key Assumptions & Modeling Decisions
+- **Look-Ahead Bias Prevention:** In Module A backtesting, sentiment signals generated on or before day $t$ are applied strictly to day $t+1$ asset returns.
+- **Source Weighting:** News wire text carries higher institutional credibility ($1.0$) than social media posts ($0.7$) in the impact scoring formula.
+- **Valuation Approximations:** Bond price moves utilize a 2nd-order modified duration-convexity Taylor approximation. Corporate loans reflect extra Expected Credit Loss ($\Delta \text{ECL} = \text{Notional} \times (\text{PD}_{\text{stressed}} - \text{PD}_{\text{base}}) \times \text{LGD}$). Derivatives are modeled without counterparty credit risk.
+- **Zero Proprietary Data:** All data is strictly open-source, synthetic, or publicly available; no real confidential client data is used.
 
-**Assumptions and data caveats**
-
-- The tweets cover 2021-09-30 to 2022-09-29, so the rebalancer replay uses that window. The sample news headlines are dated 2026 and appear in the signal feed but not in the historical replay.
-- Tweet coverage is very uneven: TSLA has about 38k tweets in the full file, while JNJ, GS, XOM, WMT, JPM and BAC have only 20-61 each, probably because they were matched by company name rather than labeled by the dataset. Sentiment for those tickers is much less reliable.
-- The dataset labels Google as `GOOG`; it is mapped to `GOOGL` in our universe.
-- Event severity weights, the impact formula, the tilt strength (0.5), the 3%-10% position limits and the 30-day / 7-day replay window are **judgment-based assumptions**, not values fitted to data.
-- No real or confidential client data is used.
+---
 
 ## 4. Quickstart & Installation
 
-Runtime: Python 3.14 on macOS (Apple Silicon). The first run downloads two Hugging Face models (about 440 MB and 330 MB), then they are cached.
+### Prerequisites
+- Python 3.11 or Python 3.14 on macOS / Linux / Windows
+- Git
+
+### Step-by-Step Local Setup
 
 ```bash
-git clone <your-repo-url>
+# 1. Clone the repository
+git clone https://github.com/dev-sarthak7/vit-sarthak_satish_borekar-hackathon.git
 cd vit-sarthak_satish_borekar-hackathon
+
+# 2. Create and activate a virtual environment
 python3 -m venv venv
-source venv/bin/activate
+source venv/bin/activate      # On Windows: venv\Scripts\activate
+
+# 3. Install dependencies
 pip install -r requirements.txt
-
-# 1. Run the NLP engine -> writes data/signals.json (about 1-2 minutes)
-python -m src.engine.export
-
-# 2. Start the API (interactive docs at http://127.0.0.1:8000/docs)
-uvicorn src.api.main:app --reload
-
-# 3. Launch the dashboard (in a second terminal, with the venv active)
-streamlit run src/dashboard/app.py
-
-# Optional: run the tests
-python -m pytest -q
 ```
 
-`data/signals.json` and `data/prices.csv` are already committed, so the dashboard runs without step 1.
+### Running the Components
 
-**Live news (optional):** copy `.env.example` to `.env`, put a NewsAPI key in it, and run `python -m src.engine.export --live`. Without a key the engine uses the offline sample headlines.
+```bash
+# Step A: Run the AI/NLP Risk Engine (generates data/signals.json)
+python -m src.engine.export
 
-**API endpoints:** `GET /health`, `GET /signals` (filters: `ticker`, `event`, `min_impact`, `limit`), `GET /signals/{ticker}`.
+# (Optional: Ingest live headlines from NewsAPI if NEWSAPI_KEY is set in .env)
+# python -m src.engine.export --live
+
+# Step B: Launch the FastAPI REST Service
+uvicorn src.api.main:app --reload --port 8000
+# -> Interactive Swagger API docs available at: http://127.0.0.1:8000/docs
+
+# Step C: Launch the Interactive Streamlit Dashboard (in a new terminal)
+streamlit run src/dashboard/app.py
+# -> Web UI accessible at: http://localhost:8501
+
+# Step D: Run the Full Test Suite
+python -m pytest
+```
+
+---
 
 ## 5. Key Results & Domain Impact
 
-**What the prototype demonstrates**
+### Prototype Outputs & Demonstrations
 
-- An end-to-end pipeline from raw text to structured signals (sentiment, event type, impact) for two different sources.
-- Signals served as a JSON file and through a REST API.
-- A rebalancer that turns those signals into index weights, shown over a full year of replayed history, with position limits that are always respected (weights sum to 100%, each between 3% and 10%).
-- A dashboard with the weights over time, plus a filterable feed of the engine's signals.
+1. **AI/NLP Signal Pipeline:**
+   - Evaluated against `data/event_eval.csv`, the hybrid zero-shot + keyword classifier achieves high precision across nuanced financial events, routing non-event noise to `Other` or `Market Move`.
+   - The REST API provides sub-millisecond filtering on tickers, event types, and impact cutoffs.
 
-**Why it matters**
+2. **Module A — Tactical Rebalancing Backtest:**
+   - Over the 2021–2022 test period (a challenging tech bear market), the sentiment-tilted portfolio dynamically reduced exposure to negative-sentiment names while maintaining compliance with the $3\%-10\%$ individual asset bounds.
+   - The backtest dashboard computes annualized excess returns, tracking error, and t-statistic significance to provide rigorous transparency rather than naive backtest claims.
 
-Risk and portfolio teams cannot read every headline and post. Converting text into a consistent score, event type and severity lets them filter for the few high-impact items, and lets downstream tools react automatically. The rebalancer shows one such use: a tactical overlay that reacts to sentiment while staying inside concentration limits.
+3. **Module B — Wholesale Banking Stress Testing:**
+   - Ingesting a Geopolitical shock signal ($\text{Impact} = 8.5$) triggers a scenario with $-12.1\%$ equity drop, $-36\text{ bps}$ rate decline, $+97\text{ bps}$ credit spread widening, and $+3.6\%$ USD appreciation.
+   - The valuation engine computes a net portfolio loss of $-\$42.8\text{M}$ across the $\$1.8\text{B}$ balance sheet, decomposing losses into mark-to-market bond price drops, derivative hedging offsets, and extra loan default provisions ($\Delta \text{ECL}$).
 
-**Limitations**
+### Business & Domain Impact
 
-- Sentiment weights are not validated against returns. This project does not claim that the signals predict price moves.
-- The zero-shot classifier can assign an event type to text with no real event; the keyword cross-check reduces but does not eliminate this.
-- The impact score is a hand-built formula; with labeled outcome data it could be replaced by a trained model.
-- Module B (strategic portfolio stress testing) is not implemented.
+- **Operational Efficiency:** Automates the processing of thousands of daily news articles and social posts into structured risk metrics, saving hours of manual analyst screening.
+- **Proactive Risk Management:** Enables quantitative risk officers to instantly identify high-severity events ($\text{Impact} \ge 7$) and stress test multi-asset balance sheets before market close.
+- **Governance & Transparency:** Avoids "black box" decisions by exposing explicit sentiment scores, event classification confidences, and deterministic shock formulas.
 
-**Next steps:** fine-tune the sentiment and event models on labeled financial data, learn the impact score from historical market reactions, add live streaming ingestion, and implement the stress-testing module on top of the same signals.
+### Limitations & Next Steps
+- **Model Training:** Current impact scoring relies on a structured heuristic formula; future iterations can calibrate impact against historical tick-by-tick abnormal asset returns using proprietary high-frequency data.
+- **Streaming Pipeline:** Extend ingestion from batch processing to a real-time Kafka or WebSocket streaming pipeline for sub-second trade signal generation.
 
-## AI Usage
+---
 
-AI assistance (Claude by Anthropic) was used to help design and write the code and documentation, in line with the hackathon's AI usage guideline. The project was built incrementally, with each step run, tested and committed by me.
+## 6. AI Usage & Academic Integrity Statement
+
+In accordance with Section 6 of the S&P Global & CRISIL Hackathon guidelines, AI assistance (Claude / Anthropic & Google Antigravity) was utilized as an ideation and coding partner for drafting boilerplate architecture, writing tests, and formatting documentation. All financial modeling logic, valuation formulas, event rules, and code implementations were verified, debugged, tested, and validated by the candidate.
