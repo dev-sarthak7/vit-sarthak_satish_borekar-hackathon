@@ -4,6 +4,7 @@
 **College Email ID:** sarthak.23bce10568@vitbhopal.ac.in  
 **College / Campus:** Vellore Institute of Technology - Bhopal  
 **Demo Video Link:** [YouTube / Unlisted - Video Walkthrough](https://youtu.be/placeholder) *(Update with unlisted demo link)*  
+**Live Application URL:** [https://vit-sarthaksatishborekar-hackathon.streamlit.app/](https://vit-sarthaksatishborekar-hackathon.streamlit.app/)  
 **Slide Deck Link (if hosted externally):** [`docs/presentation.pdf`](docs/presentation.pdf)
 
 ---
@@ -46,7 +47,7 @@ Structured signals are published to `data/signals.json` and served dynamically v
                           v                                             v
 +---------------------------------------------+ +---------------------------------------------+
 |  MODULE A: Tactical Index Rebalancer        | |  MODULE B: Strategic Portfolio Stress Test  |
-|  - Universe: 16 Large-Cap US Equities       | |  - Synthetic Wholesale Banking Book ($1.8B) |
+|  - Universe: 16 Large-Cap US Equities       | |  - Synthetic Wholesale Banking Book ($4.1B) |
 |  - Recency & Impact Weighted Sentiment      | |  - Multi-Asset: Loans, Bonds, Swaps, FX, Eq |
 |  - Dynamic Weight Tilt with 3%-10% Caps     | |  - Automated Trigger Rule (Impact >= 7.0)   |
 |  - 1-Year Historical Daily Replay           | |  - Multi-Factor Shock & Valuation Engine    |
@@ -67,7 +68,7 @@ Structured signals are published to `data/signals.json` and served dynamically v
    Manages a mock equity index of 16 prominent US equities. Daily portfolio weights are dynamically adjusted: stocks exhibiting positive sentiment are overweight, while stocks with negative sentiment are underweight. Weights respect strict risk concentration bounds ($3\% \le w_i \le 10\%$) and budget normalization ($\sum w_i = 100\%$). Includes full historical backtesting against an equal-weight benchmark with excess return, tracking error, and t-statistic significance.
 
 2. **Module B: Strategic Portfolio Stress Testing**  
-   Simulates macroeconomic and geopolitical shocks on a synthetic **$1.8 Billion wholesale banking portfolio** spanning 6 asset classes (corporate loans, corporate bonds, sovereign bonds, equities, interest-rate swaps, and FX forwards). When high-impact events are detected ($\text{Impact} \ge 7.0$), automated stress scenarios apply multi-factor shocks across equity prices, yield curves, credit spreads, FX rates, and loan default probabilities (PD/LGD).
+   Simulates macroeconomic and geopolitical shocks on a synthetic **$4.1 Billion wholesale banking portfolio** spanning 6 asset classes (corporate loans, corporate bonds, sovereign bonds, equities, interest-rate swaps, and FX forwards). When high-impact events are detected ($\text{Impact} \ge 7.0$), automated stress scenarios apply multi-factor shocks across equity prices, yield curves, credit spreads, FX rates, and loan default probabilities (PD/LGD).
 
 ---
 
@@ -113,13 +114,13 @@ vit-sarthak_satish_borekar-hackathon/
 
 | Dataset / File | Source / Origin | Volume & Nature | Usage & Assumptions |
 |---|---|---|---|
-| `data/sample_news.csv` | **Synthetic** | 8 curated financial headlines | Serves as deterministic offline news fallback when NewsAPI key is not present. |
+| `data/sample_news.csv` | **Synthetic** | 12 curated financial headlines | Serves as deterministic offline news fallback when NewsAPI key is not present. |
 | NewsAPI (`newsapi.org`) | **Public API** (Free tier) | Real-time global headlines | Live news feed queried on-demand with `--live` flag. |
-| `data/sample_tweets.csv` | **Kaggle** ([Stock Tweets Dataset](https://www.kaggle.com/datasets/equinxx/stock-tweets-for-sentiment-analysis-and-prediction), CC0 1.0) | 560 stratified tweets (up to 40 per ticker) | Historical social media feed covering 2021-09-30 to 2022-09-30 across the 16 index tickers. |
+| `data/sample_tweets.csv` | **Kaggle** ([Stock Tweets Dataset](https://www.kaggle.com/datasets/equinxx/stock-tweets-for-sentiment-analysis-and-prediction), CC0 1.0) | 4,733 tweets across 16 tickers | Historical social media feed covering 2021-09-30 to 2022-09-30 across the 16 index tickers. |
 | `data/prices.csv` | **Yahoo Finance** via `yfinance` | 252 trading days $\times$ 16 tickers | Daily adjusted close prices from 2021-09-30 to 2022-09-29 matching the tweets timeline. |
-| `data/portfolio.csv` | **Synthetic Wholesale Banking Book** | 15 multi-asset institutional positions ($1.8B gross notional) | Covers amortized cost loans with PD/LGD, fixed-income bonds with duration/convexity, IR swaps, and FX forwards. |
-| `data/event_eval.csv` | **Curated Benchmark** | 20 labeled financial event texts | Ground-truth validation dataset for the zero-shot + keyword event classifier. |
-| `data/signals.json` | **Engine Output** | 568 structured records | Pre-generated risk signals ready for instant consumption by downstream modules. |
+| `data/portfolio.csv` | **Synthetic Wholesale Banking Book** | 60 multi-asset institutional positions ($4,136.7M total market value) | Covers amortized cost loans with PD/LGD, fixed-income bonds with duration/convexity, IR swaps, and FX forwards across 6 asset classes. |
+| `data/event_eval.csv` | **Curated Benchmark** | 45 labeled financial event texts | Ground-truth validation dataset for the zero-shot + keyword event classifier. |
+| `data/signals.json` | **Engine Output** | 4,745 structured records | Pre-generated risk signals ready for instant consumption by downstream modules. |
 
 ### Key Assumptions & Modeling Decisions
 - **Look-Ahead Bias Prevention:** In Module A backtesting, sentiment signals generated on or before day $t$ are applied strictly to day $t+1$ asset returns.
@@ -165,7 +166,8 @@ uvicorn src.api.main:app --reload --port 8000
 
 # Step C: Launch the Interactive Streamlit Dashboard (in a new terminal)
 streamlit run src/dashboard/app.py
-# -> Web UI accessible at: http://localhost:8501
+# -> Local Web UI: http://localhost:8501
+# -> Live Hosted Cloud Deployment: https://vit-sarthaksatishborekar-hackathon.streamlit.app/
 
 # Step D: Run the Full Test Suite
 python -m pytest
@@ -187,7 +189,7 @@ python -m pytest
 
 3. **Module B — Wholesale Banking Stress Testing:**
    - Ingesting a Geopolitical shock signal ($\text{Impact} = 8.5$) triggers a scenario with $-12.1\%$ equity drop, $-36\text{ bps}$ rate decline, $+97\text{ bps}$ credit spread widening, and $+3.6\%$ USD appreciation.
-   - The valuation engine computes a net portfolio loss of $-\$42.8\text{M}$ across the $\$1.8\text{B}$ balance sheet, decomposing losses into mark-to-market bond price drops, derivative hedging offsets, and extra loan default provisions ($\Delta \text{ECL}$).
+   - The valuation engine computes a net portfolio loss decomposing losses into mark-to-market bond price drops, derivative hedging offsets, and extra loan default provisions ($\Delta \text{ECL}$) across the $\$4.1\text{B}$ balance sheet.
 
 ### Business & Domain Impact
 
