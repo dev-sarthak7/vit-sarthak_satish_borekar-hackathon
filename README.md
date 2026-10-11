@@ -5,7 +5,7 @@
 **College / Campus:** Vellore Institute of Technology - Bhopal  
 **Demo Video Link:** [YouTube / Unlisted - Video Walkthrough](https://youtu.be/WODpTtzn3J0) <br>
 **Live Application URL:** [https://vit-sarthaksatishborekar-hackathon.streamlit.app/](https://vit-sarthaksatishborekar-hackathon.streamlit.app/)  
-**Slide Deck Link (if hosted externally):** [`docs/presentation.pdf`](docs/presentation.pdf)
+**Slide Deck Link:** [`docs/presentation.pdf`](https://drive.google.com/file/d/1iLUmi_9OTVK8KPmO0GYeMG0HVzo7RD3j/view?usp=sharing)
 
 ---
 
