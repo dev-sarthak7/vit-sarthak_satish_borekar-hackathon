@@ -205,4 +205,4 @@ python -m pytest
 
 ## 6. AI Usage & Academic Integrity Statement
 
-In accordance with Section 6 of the S&P Global & CRISIL Hackathon guidelines, AI assistance (Claude / Anthropic & Google Antigravity) was utilized as an ideation and coding partner for drafting boilerplate architecture, writing tests, and formatting documentation. All financial modeling logic, valuation formulas, event rules, and code implementations were verified, debugged, tested, and validated by the candidate.
+In accordance with Section 6 of the S&P Global & CRISIL Hackathon guidelines, AI assistance (Claude / Anthropic & Google Antigravity) was utilized as an ideation and coding partner for drafting boilerplate architecture, writing tests, and formatting documentation. All financial modeling logic, valuation formulas, event rules, and code implementations were verified, debugged, tested, and validated by me.
