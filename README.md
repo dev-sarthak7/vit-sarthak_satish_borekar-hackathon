@@ -3,7 +3,7 @@
 **Candidate Name:** Sarthak Satish Borekar  
 **College Email ID:** sarthak.23bce10568@vitbhopal.ac.in  
 **College / Campus:** Vellore Institute of Technology - Bhopal  
-**Demo Video Link:** [YouTube / Unlisted - Video Walkthrough](https://youtu.be/WODpTtzn3J0)
+**Demo Video Link:** [YouTube / Unlisted - Video Walkthrough](https://youtu.be/WODpTtzn3J0) <br>
 **Live Application URL:** [https://vit-sarthaksatishborekar-hackathon.streamlit.app/](https://vit-sarthaksatishborekar-hackathon.streamlit.app/)  
 **Slide Deck Link (if hosted externally):** [`docs/presentation.pdf`](docs/presentation.pdf)
 
