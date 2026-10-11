@@ -1,3 +1,4 @@
+import math
 import sys
 from pathlib import Path
 
@@ -350,6 +351,11 @@ def get_portfolio() -> pd.DataFrame:
 
 sig_count = len(get_signals())
 
+# Compute portfolio summary from data for display
+_pf = get_portfolio()
+_pf_total_musd = _pf["market_value_musd"].sum()
+_pf_n_classes = _pf["asset_class"].nunique()
+
 # ---------------------------------------------------------------------------
 # Ribbon
 # ---------------------------------------------------------------------------
@@ -357,11 +363,11 @@ st.markdown(f"""
 <div class="ribbon">
     <div class="ribbon-cell">
         <div class="ribbon-lbl">Tactical Universe</div>
-        <div class="ribbon-val">16 S&amp;P 100 Equities</div>
+        <div class="ribbon-val">16 Large-Cap US Equities</div>
     </div>
     <div class="ribbon-cell">
         <div class="ribbon-lbl">Wholesale Portfolio</div>
-        <div class="ribbon-val">$1,800.0M / 6 Asset Classes</div>
+        <div class="ribbon-val">${_pf_total_musd:,.1f}M / {_pf_n_classes} Asset Classes</div>
     </div>
     <div class="ribbon-cell">
         <div class="ribbon-lbl">NLP Risk Engine</div>
@@ -372,8 +378,8 @@ st.markdown(f"""
         <div class="ribbon-val" style="color:#10B981;">34 / 34 Tests Verified</div>
     </div>
     <div class="ribbon-cell">
-        <div class="ribbon-lbl">Live Engine</div>
-        <div class="ribbon-val">{sig_count} cached | Build v4.2</div>
+        <div class="ribbon-lbl">Signal Engine</div>
+        <div class="ribbon-val">{sig_count} signals (cached run) | Build v4.2</div>
     </div>
     <div class="ribbon-cell">
         <div class="ribbon-lbl">Status</div>
@@ -409,7 +415,7 @@ PLT = dict(
 tab_a, tab_b, tab_c, tab_d = st.tabs([
     "Module A: Tactical Index Rebalancing",
     "Module B: Wholesale Stress Testing",
-    "Real-Time NLP Signal Blotter",
+    "NLP Signal Blotter",
     "Model Taxonomy & Parameters",
 ])
 
@@ -422,7 +428,7 @@ with tab_a:
         <div class="panel-hd">
             <div>
                 <div class="panel-title">Dynamic Tactical Equity Rebalancing</div>
-                <div class="panel-sub">Real-time FinBERT sentiment-driven weighting across 16 large-cap equities with active liquidity &amp; hard concentration limits 3.00% &le; w<sub>i</sub> &le; 10.00% and baseline equal-weight floor at w<sub>0</sub> = 6.25%.</div>
+                <div class="panel-sub">FinBERT sentiment-driven weighting across 16 large-cap US equities with active liquidity &amp; hard concentration limits 3.00% &le; w<sub>i</sub> &le; 10.00% and baseline equal-weight floor at w<sub>0</sub> = 6.25%.</div>
             </div>
             <div class="panel-tag">REPLAY WINDOW: 2021-09-30 → 2022-09-29 (252 TRADING DAYS)</div>
         </div>
@@ -454,7 +460,7 @@ with tab_a:
         c2.metric("Daily Turnover", f"{to:.2f}%")
 
         st.markdown("---")
-        st.markdown(f"**Statistical Robustness** &nbsp; p = {2*(1 - min(abs(xs['t_stat'])/2, 0.999)):.3f}")
+        st.markdown(f"**Statistical Robustness** &nbsp; p = {math.erfc(abs(xs['t_stat']) / math.sqrt(2)):.3f}")
         if abs(xs["t_stat"]) >= 2.0:
             st.success(f"**{xs['t_stat']:+.2f}** t-Statistic (|t| ≥ 2.0). Signal exhibits non-spurious positive tilt.")
         else:
@@ -540,7 +546,7 @@ with tab_b:
         <div class="panel-hd">
             <div>
                 <div class="panel-title">Strategic Multi-Asset Portfolio Stress Testing</div>
-                <div class="panel-sub">Simulates macroeconomic and geopolitical stress on a $1.8B institutional banking book (Loans, Bonds, Swaps, FX, Equities).</div>
+                <div class="panel-sub">Simulates macroeconomic and geopolitical stress on a ${_pf_total_musd/1000:.1f}B institutional banking book (Loans, Bonds, Swaps, FX, Equities).</div>
             </div>
             <div class="panel-tag">ANALYTICAL MODEL CLASS: 2nd-Order Duration/Convexity + Basel Δ-ECL</div>
         </div>
@@ -549,7 +555,7 @@ with tab_b:
 
     signals_list = get_signals()
     mode = st.radio(
-        "Stress Trigger Calibration Engine",
+        "Stress Trigger Engine",
         ["NLP Event Signal Auto-Trigger", "Parametric Macro Shock Generator"],
         horizontal=True,
     )
@@ -582,15 +588,15 @@ with tab_b:
     else:
         pc1, pc2 = st.columns(2)
         ev = pc1.selectbox("Macro Shock Regime", list(SYSTEMIC))
-        imp = pc2.slider("Calibrated Impact Severity", 1.0, 10.0, 8.0, 0.1)
+        imp = pc2.slider("Assumed Impact Severity", 1.0, 10.0, 8.0, 0.1)
         shock = scaled_shock(ev, imp)
-        label = f"{ev} Scenario (Calibrated Impact: {imp:.1f})"
+        label = f"{ev} Scenario (Assumed Impact: {imp:.1f})"
 
     if shock is not None:
         st.markdown(f"""
         <div class="panel" style="border-color:rgba(238,39,38,0.40);">
             <div style="font-size:14px; font-weight:700; color:#fff;">Active Scenario: <span style="color:#EE2726;">{label}</span></div>
-            <div style="font-size:11px; color:#94A3B8; margin-top:2px;">Vector calibrated using historical multi-factor transmission weights.</div>
+            <div style="font-size:11px; color:#94A3B8; margin-top:2px;">Illustrative shocks (judgment-based, not calibrated to market data).</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -655,8 +661,8 @@ with tab_c:
     <div class="panel">
         <div class="panel-hd">
             <div>
-                <div class="panel-title">Real-Time AI/NLP Risk Signal Feed</div>
-                <div class="panel-sub">Streaming document intelligence: FinBERT sentiment scoring, zero-shot event classification, and calibrated impact severity.</div>
+                <div class="panel-title">AI/NLP Risk Signal Blotter</div>
+                <div class="panel-sub">Document intelligence: FinBERT sentiment scoring, zero-shot event classification, and assumed impact severity.</div>
             </div>
             <div class="panel-tag">ENGINE THROUGHPUT: """ + str(sig_count) + """ SIGNALS CACHED</div>
         </div>
@@ -769,7 +775,7 @@ with tab_d:
         <div class="panel-hd">
             <div>
                 <div class="panel-title">Quantitative Model Taxonomy & System Specifications</div>
-                <div class="panel-sub">Mathematical formulations, NLP inference pipeline architecture, and risk parameter calibrations.</div>
+                <div class="panel-sub">Mathematical formulations, NLP inference pipeline architecture, and risk parameter assumptions.</div>
             </div>
             <div class="panel-tag">SPECIFICATION VERSION 1.2</div>
         </div>
@@ -790,7 +796,7 @@ with tab_d:
 
     sv1, sv2 = st.columns([1.5, 1])
     with sv1:
-        st.markdown("**Calibrated Severity Matrix**")
+        st.markdown("**Severity Matrix (assumed)**")
         st.dataframe(
             pd.DataFrame({
                 "Event": ["Credit Event", "Geopolitical", "Macroeconomic", "M&A", "Regulatory", "Earnings", "Market Move", "Product Launch", "Other"],
